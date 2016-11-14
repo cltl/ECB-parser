@@ -2,7 +2,7 @@ import pandas
 from tabulate import tabulate
 
 
-def show_me(main_dict, keys, headers, event_mention=False):
+def show_me(main_dict, keys, headers, meta=set(), event_mention=False):
     """
     this function shows in a html table
     for the keys of the main dict the headers (attributes)
@@ -11,6 +11,9 @@ def show_me(main_dict, keys, headers, event_mention=False):
     (see notebook 'Inspect ECB(+)'
     :pararm iterable keys: keys from the main_dict to inspect
     :param list headers: the attribute you want to inspect from the keys
+    :param set meta: keys for which you want to print:
+    1. number of rows
+    2. minimum, average, and maximum
     
     :rtype: IPython.core.display.HTML
     :return: the results in a html table
@@ -18,7 +21,7 @@ def show_me(main_dict, keys, headers, event_mention=False):
     rows = []
     for key in keys:
         if key not in main_dict:
-            row = [key] + ['NA' for _ in range(len(headers)-1)]
+            row = [key] + [0 for _ in range(len(headers)-1)]
             rows.append(row)
             continue
             
@@ -34,6 +37,17 @@ def show_me(main_dict, keys, headers, event_mention=False):
     
     df = pandas.DataFrame(rows, columns=headers)
 
+    
+    if meta:
+        print('number of rows: %s' % len(df))
+        for key in meta:
+            minimum = min(df[key])
+            maximum = max(df[key])
+            average = sum(df[key]) / len(df)
+            print('%s: min(%s), avg(%s), max(%s)' % (key, 
+                                                     minimum, 
+                                                     round(average, 2),
+                                                     maximum))
     table = tabulate(df, headers='keys', tablefmt='html')
     return table
 
